@@ -1,10 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import urllib.request
 
-# TODO 이미지 다운로드 코드 추가
+# 이미지 불러오기
+urllib.request.urlretrieve(
+    "https://raw.githubusercontent.com/jaehosung/ml4se_codes/main/exercise07/sample-images_01.txt", "sample-images_01.txt"
+)
 
-# 트레이닝 셋 불러오기
+# 트레이닝 셋 할당
 df_training_set = pd.read_csv('sample-images_01.txt', sep=",", header=None) # 트레이닝 셋 (size=(600,784))
 N = len(df_training_set)
 df_training_set.head()
@@ -31,7 +35,7 @@ r_n_k_final = pd.DataFrame()
 
 fig_generators, axs_generators = plt.subplots(K, iteration_num+1)  # 생성기의 변화 시각화
 
-# TODO 이름 다시 정하기
+# 생성기 시각화
 def draw_generator(axs_generators, iter_num, mu):
     for k in range(K):
         axs_generators[k, iter_num].set_xticks([])
@@ -83,12 +87,9 @@ for iter_num in range(iteration_num):
     r_n_k_final = r_n_k.copy()
 
 r_argmax = list(r_n_k_final.idxmin(axis = 1)) # 가장 높은 확률로 소속될 생성기의 인덱스
-fig_generators.show()
-
 
 
 fig_result, axs_result = plt.subplots(K, 7)
-
 
 # 분류 결과의 표시
 def draw_result(mu, r_argmax, axs):
