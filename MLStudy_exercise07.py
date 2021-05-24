@@ -5,9 +5,9 @@ import pandas as pd
 # TODO 이미지 다운로드 코드 추가
 
 # 트레이닝 셋 불러오기
-df = pd.read_csv('sample-images_01.txt', sep=",", header=None)
-N = len(df)
-df.head()
+df_training_set = pd.read_csv('sample-images_01.txt', sep=",", header=None) # 트레이닝 셋 (size=(600,784))
+N = len(df_training_set)
+df_training_set.head()
 
 # 베르누이 확률 분포
 def bernoulli(x, mu):
@@ -16,56 +16,32 @@ def bernoulli(x, mu):
     p = np.prod(mu[x == 1]) * np.prod(1 - mu[x == 0])
     return p
 
-
-# TODO 이름 다시 정하기
-def draw_generator(fig, mu, iter_num, k):
-    subplot = fig.add_subplot(K, iteration_num + 1, k * (iteration_num + 1) + (iter_num) + 1)
-    subplot.set_xticks([])
-    subplot.set_yticks([])
-    subplot.imshow(mu[k].reshape(28, 28), cmap=plt.cm.gray_r)
-
-# 분류 결과의 표시
-def draw_result(mu, cls):
-    for c in range(K):
-        subplot = fig2.add_subplot(K, 7, c * 7 + 1)
-        subplot.set_xticks([])
-        subplot.set_yticks([])
-        subplot.set_title('Master')
-        subplot.imshow(mu[c].reshape(28, 28), cmap=plt.cm.gray_r)
-
-        i = 1
-        for j in range(len(cls)):
-            if cls[j] == c:
-                subplot = fig2.add_subplot(K, 7, c * 7 + i + 1)
-                subplot.set_xticks([])
-                subplot.set_yticks([])
-                subplot.imshow(df.iloc[j].values.reshape(28, 28), cmap=plt.cm.gray_r)
-                i += 1
-                if i > 6:
-                    break
-
 # 파라미터 설정
 K = 3 # 생성기 개수
-iteration_num = 3
+iteration_num = 1
 
 # 변수 초기화
 pi = np.full(K, 1 / K) # pi: K번째 이미지 생성기를 선택할 확률 (size=(K,))
 mu = (np.random.rand(28 * 28 * K) * 0.5 + 0.25).reshape(K, 28 * 28) # mu: K개의 이미지 생성기 (size=(K,784))
-r_n_k = pd.DataFrame()
+r_n_k_final = pd.DataFrame()
 
 # TODO mu의 초기화 방식에 대해서 고민해보기 (추측되는 이유: 0에 가까웠을 때?)
 # mu = np.random.rand(28 * 28 * classifier_num).reshape(classifier_num, 28 * 28)  # (size = (K, 284))
 # mu = mu / mu.sum(axis=1)[:, np.newaxis]
 
-fig = plt.figure()  # 생성기의 변화 시각화
-fig2 = plt.figure()  # 분류 결과 시각화
+fig_generators, axs_generators = plt.subplots(K, iteration_num+1)  # 생성기의 변화 시각화
 
-# 시작
-for k in range(K):
-    draw_generator(fig, mu, 0, k)
+# TODO 이름 다시 정하기
+def draw_generator(axs_generators, iter_num, mu):
+    for k in range(K):
+        axs_generators[k, iter_num].set_xticks([])
+        axs_generators[k, iter_num].set_yticks([])
+        axs_generators[k, iter_num].imshow(mu[k].reshape(28, 28), cmap=plt.cm.gray_r)
 
-# 식 정리
-# TODO r_n_k 수정하기 중복 선언
+
+# 이미지 생성기 초기값 시각화
+draw_generator(axs_generators, 0, mu)
+
 
 for iter_num in range(iteration_num):
     print("iter_num %d" % iter_num)
@@ -74,7 +50,7 @@ for iter_num in range(iteration_num):
     # 각각의 이미지 생성기에 소속되는 비율(r_n_k) 계산하기
     r_n_k = pd.DataFrame()
 
-    for _, x_n in df.iterrows():  # line: x_n (784,)
+    for _, x_n in df_training_set.iterrows():  # line: x_n (784,)
         r_i_k = []
         for k in range(K):
             p = bernoulli(x_n, mu[k])  # p_u_k : p_u_k(x_n)
@@ -97,21 +73,43 @@ for iter_num in range(iteration_num):
     for k in range(K):
         mu_denom = r_n_k[k].sum()  # sigma_n(r_n_k) dtype: float
         pi[k] = mu_denom / N  # pi_k = sigma(n_k) / N
-        for i, x_n in df.iterrows():
+        for i, x_n in df_training_set.iterrows():
             mu_numer[k] += x_n * r_n_k.iloc[i, k]  # mu_k 분모: sigma_n(r_n_k * x_n)
         mu[k] = mu_numer[k] / mu_denom  # mu_k = sigma_n(r_n_k * x_n) / sigma(r_n_k)
 
         # 생성기 시각화
-        draw_generator(fig, mu, iter_num + 1, k)
+    draw_generator(axs_generators, iter_num + 1, mu)
 
-# TODO 이 코드는 이해가 필요함
-# 트레이닝 세트의 문자를 분류 결과
-cls = []
-for _, r_i_k in r_n_k.iterrows():
-    cls.append(np.argmax(r_i_k.values))  # np.argmax: ndarray의 최대값의 인덱스
+    r_n_k_final = r_n_k.copy()
 
+r_argmax = list(r_n_k_final.idxmin(axis = 1)) # 가장 높은 확률로 소속될 생성기의 인덱스
+fig_generators.show()
+
+
+
+fig_result, axs_result = plt.subplots(K, 7)
+
+
+# 분류 결과의 표시
+def draw_result(mu, r_argmax, axs):
+    for c in range(K):
+        # 이미지 생성기 시각화
+        axs[c,0].set_xticks([])
+        axs[c,0].set_yticks([])
+        axs[c,0].set_title('Master')
+        axs[c,0].imshow(mu[c].reshape(28, 28), cmap=plt.cm.gray_r)
+
+        # K번째 이미지 생성기에 속하는 데이터
+        i = 1
+        for j in range(len(r_argmax)):
+            if r_argmax[j] == c:
+                axs[c,i].set_xticks([])
+                axs[c,i].set_yticks([])
+                axs[c,i].imshow(df_training_set.iloc[j].values.reshape(28, 28), cmap=plt.cm.gray_r)
+                i += 1
+                if i > 6:
+                    break
 # 분류 결과 표시
-draw_result(mu, cls)
+draw_result(mu, r_argmax,axs_result)
 
-fig.show()
-fig2.show()
+fig_result.show()
