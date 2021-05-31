@@ -18,7 +18,6 @@ def create_dataset(num):
     return dataset
 
 
-
 # 사후분포에 기반한 추정곡선 및 사후분포의 평균과 분산을 계산
 def resolve(dataset, m):
 
@@ -41,6 +40,7 @@ def resolve(dataset, m):
     s_inv = alpha * pd.DataFrame(np.identity(m + 1)) + beta * phiphi
     s = np.linalg.inv(s_inv)  # 사후분포의 공분산행렬
 
+
     # 평균 m(x)
     def mean_fun(x0):
         phi_x0 = pd.DataFrame([x0 ** i for i in range(0, m + 1)])
@@ -54,6 +54,7 @@ def resolve(dataset, m):
         phi_x0 = pd.DataFrame([x0 ** i for i in range(0, m + 1)])
         deviation = np.sqrt(1.0 / beta + np.dot(np.dot(phi_x0.T, s), phi_x0))
         return deviation.diagonal()
+####################################################### 이해 완료 ########################################################
 
     tmp = 0
     for index, line in phis.iterrows():
@@ -62,7 +63,6 @@ def resolve(dataset, m):
 
     return mean_fun, deviation_fun, mean, s
 
-####################################################### 이해 완료 ########################################################
 
 # Main
 df_ws = pd.DataFrame()
@@ -118,6 +118,7 @@ for c, num in enumerate(N_list):  # 트레이닝 셋의 데이터 수
     for index, ws in ws_samples.iterrows():
         liney = f(linex, ws)
         subplot2.plot(linex, liney, color="red", linestyle="--")
+
 
 fig1.show()
 fig2.show()
