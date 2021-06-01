@@ -1,3 +1,4 @@
+# coding=utf-8
 # 베이스 추정에 의한 회귀 분석
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,9 +7,9 @@ import pandas as pd
 beta = 1.0 / (0.3) ** 2  # 진정한 분포의 분산
 alpha = 1.0 / 100 ** 2  # 사전분포 분산
 M = 9  # 다항식 차수
-N_list = [4, 5, 10, 100]
-
-# 트레이닝 셋 {x_n,y_n} (n=1...N) 을 준비
+# N_list = [4, 5, 10, 100]
+N_list = [4]
+# 트레이닝 셋 {x_n,y_n} (n=1...N) 생성 함수
 def create_dataset(num):
     dataset = pd.DataFrame(columns=["x", "y"])
     for i in range(num):
@@ -17,7 +18,7 @@ def create_dataset(num):
         dataset = dataset.append(pd.Series([x, y], index=["x", "y"]), ignore_index=True)
     return dataset
 
-
+#################################### 코딩 완료 ###################################
 
 # 사후분포에 기반한 추정곡선 및 사후분포의 평균과 분산을 계산
 def resolve(dataset, m):
@@ -62,7 +63,7 @@ def resolve(dataset, m):
 
     return mean_fun, deviation_fun, mean, s
 
-####################################################### 이해 완료 ########################################################
+#################################### 이해 완료 ###################################
 
 # Main
 df_ws = pd.DataFrame()
@@ -71,7 +72,9 @@ fig1 = plt.figure()
 fig2 = plt.figure()
 for c, num in enumerate(N_list):  # 트레이닝 셋의 데이터 수
     train_set = create_dataset(num)
+
     mean_fun, deviation_fun, mean, sigma = resolve(train_set, M)
+
     ws_samples = pd.DataFrame(np.random.multivariate_normal(mean, sigma, 4))
 
     subplot1 = fig1.add_subplot(2, 2, c + 1)
@@ -119,5 +122,7 @@ for c, num in enumerate(N_list):  # 트레이닝 셋의 데이터 수
         liney = f(linex, ws)
         subplot2.plot(linex, liney, color="red", linestyle="--")
 
+fig1.tight_layout()
 fig1.show()
+fig2.tight_layout()
 fig2.show()
