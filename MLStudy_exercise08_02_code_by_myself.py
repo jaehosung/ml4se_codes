@@ -1,12 +1,10 @@
 #%%
-
 # 베이스 추정에 의한 회귀 분석
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
 #%%
-
 #파라미터 설정
 beta_true = 1.0 / (0.3) ** 2
 alpha = 1.0 / 100 ** 2
@@ -84,7 +82,6 @@ c = 0
 df_ws = pd.DataFrame()
 ws_samples = pd.DataFrame(np.random.multivariate_normal(mean,s,4))
 
-
 # 그래프 이름 및 범위 설정
 axs[c][0].set_xlim(-0.05,1.05)
 axs[c][0].set_ylim(-2,2)
@@ -119,9 +116,7 @@ axs[c][0].plot(line_x, line_y_mu + line_y_d, color='black', linestyle='--')
 axs[c][1].plot(line_x, line_y_mu, color='red', label="mean")
 axs[c][1].legend(loc=1)
 
-
 for index, ws in ws_samples.iterrows():
     line_y_f = f(line_x, ws)
     axs[c][1].plot(line_x, line_y_f, color='green', linestyle='--')
 fig.show()
-
