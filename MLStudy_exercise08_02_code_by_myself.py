@@ -97,31 +97,31 @@ axs[c][1].set_title("N=%d" % N)
 axs[c][0].scatter(training_set.x, training_set.y, marker='o', color='blue')
 axs[c][1].scatter(training_set.x, training_set.y, marker='o', color='blue')
 
-linex = np.arange(0,1.01,0.01)
+line_x = np.arange(0, 1.01, 0.01)
 
 # 실제 값 계산
-liney_true = np.sin(2*np.pi*linex)
+line_y_true = np.sin(2 * np.pi * line_x)
 
 # 평균과 표준편차 곡선 계산
-line_y_mu = np.array(mean_fun(linex))
-line_y_d = np.array(deviation_fun(linex))
+line_y_mu = np.array(mean_fun(line_x))
+line_y_d = np.array(deviation_fun(line_x))
 
 # 실제값 표시
-axs[c][0].plot(linex, liney_true, color='green',linestyle=':')
+axs[c][0].plot(line_x, line_y_true, color='green', linestyle=':')
 
 # 평균과 표준편차 곡선 표시
-axs[c][0].plot(linex, line_y_mu, color='red', label='mean')
+axs[c][0].plot(line_x, line_y_mu, color='red', label='mean')
 axs[c][0].legend(loc=1)
-axs[c][0].plot(linex, line_y_mu - line_y_d, color='black', linestyle='--')
-axs[c][0].plot(linex, line_y_mu + line_y_d, color='black', linestyle='--')
+axs[c][0].plot(line_x, line_y_mu - line_y_d, color='black', linestyle='--')
+axs[c][0].plot(line_x, line_y_mu + line_y_d, color='black', linestyle='--')
 
 # 평균 곡선 표시
-axs[c][1].plot(linex, line_y_mu, color='red', label="mean")
+axs[c][1].plot(line_x, line_y_mu, color='red', label="mean")
 axs[c][1].legend(loc=1)
 
 
 for index, ws in ws_samples.iterrows():
-    line_y_f = f(linex, ws)
-    axs[c][1].plot(linex, line_y_f, color='green', linestyle='--')
+    line_y_f = f(line_x, ws)
+    axs[c][1].plot(line_x, line_y_f, color='green', linestyle='--')
 fig.show()
 
