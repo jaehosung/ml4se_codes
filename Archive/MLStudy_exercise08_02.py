@@ -17,8 +17,6 @@ def create_dataset(num):
         dataset = dataset.append(pd.Series([x, y], index=["x", "y"]), ignore_index=True)
     return dataset
 
-
-
 # 사후분포에 기반한 추정곡선 및 사후분포의 평균과 분산을 계산
 def resolve(dataset, m):
 
