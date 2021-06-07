@@ -129,5 +129,3 @@ for c, N in enumerate(N_list):
     ws_sample = pd.DataFrame(np.random.multivariate_normal(mean, s, 4))
     draw_ws(ws_sample, func_mx, M)
 fig.show()
-
-print("test")
