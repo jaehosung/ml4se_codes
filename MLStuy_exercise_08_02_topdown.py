@@ -1,10 +1,3 @@
-'''
-TODO
-    1. 주석 달기
-    2. flatten 이유 찾기
-    3. colab에 옮기기
-'''
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,7 +10,7 @@ def generate_dataset(N):
         y = np.sin(2.0 * np.pi * x) + np.random.normal(scale=0.3)
         dataset = dataset.append(pd.Series([x, y], index=["x", "t"]),
                                  ignore_index=True)
-    return dataset
+    return dataset  # (size=(N,2))
 
 
 def calc_s(phis):
@@ -27,38 +20,39 @@ def calc_s(phis):
         phiphi_sum += np.dot(phi, phi.T)  # (size=(M+1,M+1))
     s_inv = alpha * pd.DataFrame(np.identity(M + 1)) + beta * phiphi_sum
     s = np.linalg.inv(s_inv)
-    return s
+
+    return s  # (size=(M+1,M+1))
 
 
 def calc_mean(t, s, phis):
     sigma_t_phi = np.sum(np.multiply(t.values[:, np.newaxis], phis.values),
                          axis=0)
     mean = np.linalg.multi_dot([beta * s, sigma_t_phi])
-    return mean
+
+    return mean  # (size=(M+1,))
 
 
-def calc_phis(training_set):
+def calc_phis(training_set, M):
     phis = pd.DataFrame()  # (size=(N,M+1)
     for i in range(0, M + 1):
         phi = training_set.x ** i
         phi.name = "x**%d" % i
         phis = pd.concat([phis, phi], axis=1)
-    return phis
+    return phis  # (size=(N,M+1))
 
 
 def calc_parameters(training_set, M):
     t = training_set.t
+    phis = calc_phis(training_set, M)  # 모든 training_set의 phi값 모음
 
-    phis = calc_phis(training_set)  # 모든 training_set의 phi값 모음
-    s = calc_s(phis)  # s 계산
-    mean = calc_mean(t, s, phis)  # mean 계산
+    s = calc_s(phis)  # s 계산 (size=(M+1,M+1))
+    mean = calc_mean(t, s, phis)  # mean 계산 (size=(M+1,))
 
     def func_mx(x):
         phi_x = np.array([x ** i for i in range(0, M + 1)])
         sigma_t_phi = np.sum(np.multiply(t.values[:, np.newaxis], phis.values),
                              axis=0)
-        # TODO 왜 flatten? maybe 차수 때문에?
-        mx = np.linalg.multi_dot([beta * phi_x.T, s, sigma_t_phi]).flatten()
+        mx = np.linalg.multi_dot([beta * phi_x.T, s, sigma_t_phi])
         return mx
 
     def func_sx(x):
@@ -113,9 +107,9 @@ def draw_ws(ws_samples, func_mx, M):
         axs[c][1].plot(line_x, line_y_f, color='green', linestyle='--')
 
 
-beta_true = 1.0 / (0.3) ** 2
+beta_true = 1.0 / (0.3) ** 2  # 표준편차: 0.3
 beta = beta_true
-alpha = 1.0 / 100 ** 2
+alpha = 1.0 / 100 ** 2  # 표준편차: 100
 
 M = 9  # 다항식 차수
 N_list = [4, 5, 10, 100]
